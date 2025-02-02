@@ -1,5 +1,7 @@
+from database.database_manager import DatabaseManager
+
 class Project:
-    def __init__(self, name: str, description: Optional[str] = None):
+    def __init__(self, name: str, description: str = ""):
         self.name = name
         self.description = description
 

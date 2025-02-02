@@ -1,3 +1,5 @@
+from database.database_manager import DatabaseManager
+
 class ProjectFile:
     def __init__(self, project_id: int, filename: str):
         self.project_id = project_id

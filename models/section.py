@@ -1,3 +1,5 @@
+from database.database_manager import DatabaseManager
+
 class Section:
     def __init__(self, project_file_id: int, title: str, level: int):
         self.project_file_id = project_file_id
