@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QFileDialog, QListWidget, QMessageBox, QLabel
+from PyQt6.QtWidgets import QWidget, QProgressBar, QVBoxLayout, QPushButton, QFileDialog, QListWidget, QMessageBox, QLabel
 from utils.docx_parser import DocxParser
 
 class ProjectDetailView(QWidget):
@@ -8,27 +8,49 @@ class ProjectDetailView(QWidget):
         super().__init__()
         self.project_id = project_id
         self.init_ui()
-        
-    def init_ui(self):
-        self.setWindowTitle("Projekt-Details")
-        self.layout = QVBoxLayout()
-        
-        self.project_label = QLabel("Projekt: " + self.get_project_name())
-        self.layout.addWidget(self.project_label)
-        
-        self.file_list = QListWidget()
+    
+def init_ui(self):
+    self.setWindowTitle("Projekt-Details")
+    self.layout = QVBoxLayout()
+    
+    self.project_label = QLabel("Projekt: Unbekannt")
+    self.layout.addWidget(self.project_label)
+    
+    self.file_list = QListWidget()
+    self.layout.addWidget(self.file_list)
+    
+    # Fortschrittsbalken für Übersetzung
+    self.progress_bar = QProgressBar()
+    self.progress_bar.setMinimum(0)
+    self.progress_bar.setMaximum(100)
+    self.progress_bar.setValue(0)  # Startwert
+    self.progress_label = QLabel("0/0 Segmente übersetzt")
+    
+    self.layout.addWidget(self.progress_label)
+    self.layout.addWidget(self.progress_bar)
+    
+    # Buttons für Datei-Handling
+    self.add_file_btn = QPushButton("📂 Datei hinzufügen")
+    self.add_file_btn.clicked.connect(self.add_file)
+    self.layout.addWidget(self.add_file_btn)
+
+    self.remove_file_btn = QPushButton("🗑️ Datei entfernen")
+    self.remove_file_btn.clicked.connect(self.remove_file)
+    self.layout.addWidget(self.remove_file_btn)
+    
+    # Button zur Generierung der übersetzten Datei
+    self.generate_translation_btn = QPushButton("📄 Übersetzte Datei generieren")
+    self.generate_translation_btn.clicked.connect(self.generate_translated_file)
+    self.layout.addWidget(self.generate_translation_btn)
+    
+    self.setLayout(self.layout)
+    
+    def update_project(self, project_id):
+        """Aktualisiert die Ansicht mit dem neuen Projekt."""
+        self.project_id = project_id
+        project_name = self.get_project_name()
+        self.project_label.setText(f"Projekt: {project_name}")
         self.load_files()
-        self.layout.addWidget(self.file_list)
-        
-        self.add_file_btn = QPushButton("📂 Datei hinzufügen")
-        self.add_file_btn.clicked.connect(self.add_file)
-        
-        self.remove_file_btn = QPushButton("🗑️ Datei entfernen")
-        self.remove_file_btn.clicked.connect(self.remove_file)
-        
-        self.layout.addWidget(self.add_file_btn)
-        self.layout.addWidget(self.remove_file_btn)
-        self.setLayout(self.layout)
     
     def get_project_name(self):
         """Holt den Projektnamen aus der Datenbank."""
@@ -59,9 +81,10 @@ class ProjectDetailView(QWidget):
         filename = os.path.basename(file_path)
         conn = sqlite3.connect("logion.db")
         cursor = conn.cursor()
+        
+        # Datei in project_files speichern
         cursor.execute("INSERT INTO project_files (project_id, filename) VALUES (?, ?)", (self.project_id, filename))
-        conn.commit()
-        conn.close()
+        project_file_id = cursor.lastrowid  # ID der eingefügten Datei speichern
         
         # Datei analysieren
         parser = DocxParser(file_path)
@@ -75,15 +98,15 @@ class ProjectDetailView(QWidget):
             section_divider = 1 if section_depth == QMessageBox.StandardButton.No else 2
             
             # Sections speichern
-            for section in parser.extract_sections():
-                cursor.execute("INSERT INTO sections (project_file_id, title, level) VALUES (?, ?, ?)", (self.project_id, section["title"], section_divider))
+            for section in sections:
+                cursor.execute("INSERT INTO sections (project_file_id, title, level) VALUES (?, ?, ?)", (project_file_id, section["title"], section_divider))
         else:
             # Eine einzelne Section für die Datei anlegen
-            cursor.execute("INSERT INTO sections (project_file_id, title, level) VALUES (?, ?, ?)", (self.project_id, filename, 0))
+            cursor.execute("INSERT INTO sections (project_file_id, title, level) VALUES (?, ?, ?)", (project_file_id, filename, 0))
         
-        conn.commit()
-        conn.close()
-        self.load_files()
+        conn.commit()  # Jetzt erst committen
+        conn.close()   # Und dann schließen
+        self.load_files()  # GUI aktualisieren
     
     def remove_file(self):
         """Löscht eine Datei aus dem Projekt."""
@@ -100,3 +123,18 @@ class ProjectDetailView(QWidget):
         conn.commit()
         conn.close()
         self.load_files()
+
+    def update_translation_progress(self, translated_segments, total_segments):
+        """Aktualisiert den Fortschrittsbalken basierend auf übersetzten Segmenten."""
+        if total_segments > 0:
+            progress = int((translated_segments / total_segments) * 100)
+        else:
+            progress = 0
+        
+        self.progress_bar.setValue(progress)
+        self.progress_label.setText(f"{translated_segments}/{total_segments} Segmente übersetzt")
+
+    def generate_translated_file(self):
+        """Platzhalter für die Funktion zur Generierung der übersetzten Datei."""
+        QMessageBox.information(self, "Übersetzung", "Die übersetzte Datei wird generiert...")
+

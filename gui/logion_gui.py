@@ -1,4 +1,3 @@
-import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTabWidget
 from gui.project_view import ProjectView
 from gui.project_detail import ProjectDetailView
@@ -14,9 +13,9 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.setCentralWidget(self.tabs)
         
-        # Tabs hinzufügen
+        # 📌 Tabs EINMAL erstellen
         self.project_view = ProjectView(self)
-        self.project_detail = ProjectDetailView(None)  # Noch keine Projekt-ID zugewiesen
+        self.project_detail = ProjectDetailView(None)  # Startet leer
         self.section_manager = SectionManager()
         self.translation_view = TranslationView()
         
@@ -26,22 +25,14 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.translation_view, "🌍 Übersetzung")
     
     def open_project_details(self, project_id):
-        """Öffnet die Projektdetailansicht für das gewählte Projekt und ersetzt den vorhandenen Tab."""
+        """Aktualisiert den bestehenden `ProjectDetailView` anstatt einen neuen Tab zu erstellen."""
+        print(f"🔄 Wechsel zu Projekt-ID: {project_id}")  # Debugging
         
-        # Falls der Tab noch nicht existiert, erstelle ihn
-        if not hasattr(self, "project_detail_index"):
-            self.project_detail = ProjectDetailView(project_id)
-            self.project_detail_index = self.tabs.addTab(self.project_detail, "📜 Projekt-Details")
-        else:
-            # Falls der Tab existiert, ersetze ihn mit einer neuen Instanz
-            self.tabs.removeTab(self.project_detail_index)
-            self.project_detail = ProjectDetailView(project_id)
-            self.project_detail_index = self.tabs.insertTab(1, self.project_detail, "📜 Projekt-Details")
+        self.project_detail.update_project(project_id)  # Aktualisiert den bestehenden Tab
+        self.tabs.setCurrentIndex(1)  # Wechsel zu Projekt-Details-Tab
 
-        self.tabs.setCurrentIndex(self.project_detail_index)  # Wechsle direkt zum Tab
-        
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QApplication([])
     window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    app.exec()

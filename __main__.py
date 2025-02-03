@@ -4,6 +4,8 @@ from PyQt6.QtWidgets import QApplication
 from gui.logion_gui import MainWindow
 import sqlite3
 from utils.docx_parser import DocxParser
+from database.db_init import initialize_database
+
 
 def test_database():
     """Testet die Verbindung zur Datenbank."""
@@ -40,12 +42,9 @@ def test_database():
 #     xml_structure = parser.extract_xml_structure()
 #     print(xml_structure)
 
-
 if __name__ == "__main__":
+    initialize_database()
     print("Starte Logion...")
-    test_database()
-    # test_docx_parser()
-    
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
