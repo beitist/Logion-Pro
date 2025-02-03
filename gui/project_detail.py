@@ -157,5 +157,12 @@ class ProjectDetailView(QWidget):
         QMessageBox.information(self, "Übersetzung", "Die übersetzte Datei wird generiert...")
 
     def file_selected(self, project_file_id):
-        """Aktiviert den Section-Tab, wenn eine Datei ausgewählt wurde."""
-        self.parent().open_section_manager(project_file_id)
+        """Aktiviert die Sections- und Segmente-Tabs, wenn eine Datei ausgewählt wurde."""
+        main_window = self.window()  # Holt die Hauptfenster-Instanz
+        if hasattr(main_window, "open_section_manager"):  # Prüft, ob Methode existiert
+            main_window.open_section_manager(project_file_id)
+            main_window.open_segment_view(project_file_id)
+        else:
+            print("⚠ Fehler: open_section_manager() nicht in MainWindow gefunden!")
+
+            

@@ -40,6 +40,17 @@ def initialize_database():
             FOREIGN KEY (project_file_id) REFERENCES project_files(id) ON DELETE CASCADE
         )
     ''')
+
+    # Segments-Tabelle
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS segments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            section_id INTEGER NOT NULL,
+            source_text TEXT NOT NULL,
+            translated_text TEXT DEFAULT '',
+            FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
+        )
+    ''')
     
     conn.commit()
     conn.close()

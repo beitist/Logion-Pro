@@ -1,5 +1,5 @@
 import sqlite3
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QMessageBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel
 
 class SegmentView(QWidget):
     def __init__(self, section_id):
@@ -12,8 +12,8 @@ class SegmentView(QWidget):
         self.layout = QVBoxLayout()
 
         self.table = QTableWidget()
-        self.table.setColumnCount(3)  # Original, Übersetzung, Speichern-Button
-        self.table.setHorizontalHeaderLabels(["Original", "Übersetzung", ""])
+        self.table.setColumnCount(3)  # Original, Übersetzung, MT/LLM-Buttons
+        self.table.setHorizontalHeaderLabels(["Original Text", "Übersetzung", "MT/LLM"])
         self.layout.addWidget(self.table)
 
         self.load_segments()
@@ -31,23 +31,29 @@ class SegmentView(QWidget):
         for i, row in enumerate(rows):
             self.table.setItem(i, 0, QTableWidgetItem(row[1]))  # Originaltext
 
-            # Übersetzung als Textfeld (falls vorhanden)
+            # Übersetzung als Textfeld
             translation_input = QLineEdit()
             if row[2]:
                 translation_input.setText(row[2])
             self.table.setCellWidget(i, 1, translation_input)
 
-            # Speichern-Button
-            btn_save = QPushButton("💾 Speichern")
-            btn_save.clicked.connect(lambda checked, seg_id=row[0], input_field=translation_input: self.save_translation(seg_id, input_field))
-            self.table.setCellWidget(i, 2, btn_save)
+            # Buttons für MT & LLM
+            btn_mt = QPushButton("🌍 MT")
+            btn_llm = QPushButton("🤖 LLM")
+            btn_mt.clicked.connect(lambda checked, seg_id=row[0], input_field=translation_input: self.apply_mt(seg_id, input_field))
+            btn_llm.clicked.connect(lambda checked, seg_id=row[0], input_field=translation_input: self.apply_llm(seg_id, input_field))
+
+            mt_llm_layout = QWidget()
+            mt_llm_layout_layout = QVBoxLayout()
+            mt_llm_layout_layout.addWidget(btn_mt)
+            mt_llm_layout_layout.addWidget(btn_llm)
+            mt_llm_layout.setLayout(mt_llm_layout_layout)
+            self.table.setCellWidget(i, 2, mt_llm_layout)
     
-    def save_translation(self, segment_id, input_field):
-        """Speichert die bearbeitete Übersetzung."""
-        new_translation = input_field.text().strip()
-        conn = sqlite3.connect("logion.db")
-        cursor = conn.cursor()
-        cursor.execute("UPDATE segments SET translated_text = ? WHERE id = ?", (new_translation, segment_id))
-        conn.commit()
-        conn.close()
-        QMessageBox.information(self, "Gespeichert", "Die Übersetzung wurde gespeichert.")
+    def apply_mt(self, segment_id, input_field):
+        """Platzhalter für Machine Translation."""
+        input_field.setText("MT-Ergebnis hier")  # TODO: Anbindung an MT-API
+
+    def apply_llm(self, segment_id, input_field):
+        """Platzhalter für LLM-gestützte Verbesserung."""
+        input_field.setText("LLM-Verbesserung hier")  # TODO: Anbindung an LLM-API
