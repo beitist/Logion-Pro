@@ -1,23 +1,10 @@
-import sys
 import sqlite3
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QLineEdit, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QLineEdit, QLabel
 
-# Datenbank-Setup
-def init_db():
-    conn = sqlite3.connect("logion.db")
-    cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS projects (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    conn.commit()
-    conn.close()
-
-class ProjectManager(QWidget):
+class ProjectView(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Logion - Projektverwaltung")
-        self.setGeometry(100, 100, 600, 400)
+        self.setWindowTitle("Projektverwaltung")
         self.layout = QVBoxLayout()
         
         self.label = QLabel("Projektname:")
@@ -43,6 +30,7 @@ class ProjectManager(QWidget):
         self.load_projects()
     
     def load_projects(self):
+        """Lädt die vorhandenen Projekte aus der Datenbank."""
         conn = sqlite3.connect("logion.db")
         cursor = conn.cursor()
         cursor.execute("SELECT id, name FROM projects")
@@ -55,6 +43,7 @@ class ProjectManager(QWidget):
             self.table.setItem(i, 1, QTableWidgetItem(row[1]))
     
     def add_project(self):
+        """Fügt ein neues Projekt hinzu."""
         name = self.project_input.text().strip()
         if not name:
             QMessageBox.warning(self, "Fehler", "Projektname darf nicht leer sein!")
@@ -70,6 +59,7 @@ class ProjectManager(QWidget):
         self.load_projects()
     
     def delete_project(self):
+        """Löscht das ausgewählte Projekt."""
         selected = self.table.currentRow()
         if selected == -1:
             QMessageBox.warning(self, "Fehler", "Bitte ein Projekt zum Löschen auswählen!")
@@ -83,10 +73,3 @@ class ProjectManager(QWidget):
         conn.close()
         
         self.load_projects()
-
-# if __name__ == "__main__":
-#     init_db()
-#     app = QApplication(sys.argv)
-#     window = ProjectManager()
-#     window.show()
-#     sys.exit(app.exec())

@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt6.QtWidgets import QApplication
-from logion_gui import ProjectManager
+from gui.logion_gui import MainWindow
 import sqlite3
 from utils.docx_parser import DocxParser
 
@@ -23,7 +23,7 @@ def test_docx_parser():
         return
     
     print("\n🔍 Lade und analysiere Datei:", file_path)
-    parser = DocxParser(file_path, section_divider=2)
+    parser = DocxParser(file_path, section_dividers=[1, 2])  # Heading 1 & 2 als Sections
     
     print("\n📌 Extracted Sections:")
     for section in parser.extract_sections():
@@ -47,6 +47,6 @@ if __name__ == "__main__":
     test_docx_parser()
     
     app = QApplication(sys.argv)
-    window = ProjectManager()
+    window = MainWindow()  # <--- Statt ProjectManager jetzt MainWindow()
     window.show()
     sys.exit(app.exec())
