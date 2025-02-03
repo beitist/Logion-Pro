@@ -100,9 +100,21 @@ class ProjectDetailView(QWidget):
             # Sections speichern
             for section in sections:
                 cursor.execute("INSERT INTO sections (project_file_id, title, level) VALUES (?, ?, ?)", (project_file_id, section["title"], section_divider))
+                section_id = cursor.lastrowid  # Die ID der eingefügten Section holen
+                
+                # Segmente dieser Section speichern
+                for sentence in section["content"]:
+                    cursor.execute("INSERT INTO segments (section_id, source_text) VALUES (?, ?)", (section_id, sentence))
+        
         else:
             # Eine einzelne Section für die Datei anlegen
             cursor.execute("INSERT INTO sections (project_file_id, title, level) VALUES (?, ?, ?)", (project_file_id, filename, 0))
+            section_id = cursor.lastrowid
+            
+            # Alle Segmente aus der Datei speichern
+            segments = parser.extract_segments()
+            for sentence in segments:
+                cursor.execute("INSERT INTO segments (section_id, source_text) VALUES (?, ?)", (section_id, sentence))
         
         conn.commit()  # Jetzt erst committen
         conn.close()   # Und dann schließen
