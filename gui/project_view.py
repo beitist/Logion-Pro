@@ -1,9 +1,9 @@
 import sqlite3
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QLineEdit, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QLineEdit, QLabel, QHBoxLayout
 
 class ProjectView(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Projektverwaltung")
         self.layout = QVBoxLayout()
         
@@ -18,19 +18,15 @@ class ProjectView(QWidget):
         self.layout.addWidget(self.add_button)
         
         self.table = QTableWidget()
-        self.table.setColumnCount(2)
-        self.table.setHorizontalHeaderLabels(["ID", "Projektname"])
+        self.table.setColumnCount(3)  # Neue Spalte für das Lupen-Symbol
+        self.table.setHorizontalHeaderLabels(["ID", "Projektname", "🔍"])
         self.layout.addWidget(self.table)
-        
-        self.delete_button = QPushButton("Projekt löschen")
-        self.delete_button.clicked.connect(self.delete_project)
-        self.layout.addWidget(self.delete_button)
         
         self.setLayout(self.layout)
         self.load_projects()
     
     def load_projects(self):
-        """Lädt die vorhandenen Projekte aus der Datenbank."""
+        """Lädt die vorhandenen Projekte aus der Datenbank und zeigt sie in der Tabelle an."""
         conn = sqlite3.connect("logion.db")
         cursor = conn.cursor()
         cursor.execute("SELECT id, name FROM projects")
@@ -41,7 +37,12 @@ class ProjectView(QWidget):
         for i, row in enumerate(rows):
             self.table.setItem(i, 0, QTableWidgetItem(str(row[0])))
             self.table.setItem(i, 1, QTableWidgetItem(row[1]))
-    
+
+            # 🔍 Button zum Öffnen des Projekts
+            btn_open = QPushButton("🔍")
+            btn_open.clicked.connect(lambda checked, project_id=row[0]: self.open_project_details(project_id))
+            self.table.setCellWidget(i, 2, btn_open)
+
     def add_project(self):
         """Fügt ein neues Projekt hinzu."""
         name = self.project_input.text().strip()
@@ -58,18 +59,8 @@ class ProjectView(QWidget):
         self.project_input.clear()
         self.load_projects()
     
-    def delete_project(self):
-        """Löscht das ausgewählte Projekt."""
-        selected = self.table.currentRow()
-        if selected == -1:
-            QMessageBox.warning(self, "Fehler", "Bitte ein Projekt zum Löschen auswählen!")
-            return
-        
-        project_id = self.table.item(selected, 0).text()
-        conn = sqlite3.connect("logion.db")
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM projects WHERE id = ?", (project_id,))
-        conn.commit()
-        conn.close()
-        
-        self.load_projects()
+    def open_project_details(self, project_id):
+        """Ruft die MainWindow-Funktion auf, um das Projekt zu öffnen."""
+        main_window = self.window()  # Sucht das Hauptfenster (MainWindow)
+        if hasattr(main_window, "open_project_details"):  # Prüft, ob Methode existiert
+            main_window.open_project_details(project_id)

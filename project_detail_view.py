@@ -7,6 +7,7 @@ class ProjectDetailView(QWidget):
     def __init__(self, project_id: int):
         super().__init__()
         self.project_id = project_id
+        print(f"🔍 ProjectDetailView erstellt für Projekt-ID: {self.project_id}")  # Debugging
         self.db = DatabaseManager()
         self.init_ui()
 

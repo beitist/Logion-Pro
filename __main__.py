@@ -15,38 +15,38 @@ def test_database():
     print("Vorhandene Tabellen:", tables)
 
 
-def test_docx_parser():
-    """Testet den DocxParser mit einer Beispiel-Datei."""
-    file_path = os.path.join("test", "TR-sample.docx")
-    if not os.path.exists(file_path):
-        print(f"Fehler: Datei {file_path} nicht gefunden!")
-        return
+# def test_docx_parser():
+#     """Testet den DocxParser mit einer Beispiel-Datei."""
+#     file_path = os.path.join("test", "TR-sample.docx")
+#     if not os.path.exists(file_path):
+#         print(f"Fehler: Datei {file_path} nicht gefunden!")
+#         return
     
-    print("\n🔍 Lade und analysiere Datei:", file_path)
-    parser = DocxParser(file_path, section_dividers=[1, 2])  # Heading 1 & 2 als Sections
+#     print("\n🔍 Lade und analysiere Datei:", file_path)
+#     parser = DocxParser(file_path, section_dividers=[1, 2])  # Heading 1 & 2 als Sections
     
-    print("\n📌 Extracted Sections:")
-    for section in parser.extract_sections():
-        print(f"  - {section['title']} ({len(section['content'])} Absätze)")
+#     print("\n📌 Extracted Sections:")
+#     for section in parser.extract_sections():
+#         print(f"  - {section['title']} ({len(section['content'])} Absätze)")
     
-    print("\n📌 Extracted Segments:")
-    segments = parser.extract_segments()
-    for section in segments:
-        print(f"\n### {section['title']} ###")
-        for sentence in section["content"]:
-            print(f"  • {sentence}")
+#     print("\n📌 Extracted Segments:")
+#     segments = parser.extract_segments()
+#     for section in segments:
+#         print(f"\n### {section['title']} ###")
+#         for sentence in section["content"]:
+#             print(f"  • {sentence}")
 
-    print("\n📌 XML Structure:")
-    xml_structure = parser.extract_xml_structure()
-    print(xml_structure)
+#     print("\n📌 XML Structure:")
+#     xml_structure = parser.extract_xml_structure()
+#     print(xml_structure)
 
 
 if __name__ == "__main__":
     print("Starte Logion...")
     test_database()
-    test_docx_parser()
+    # test_docx_parser()
     
     app = QApplication(sys.argv)
-    window = MainWindow()  # <--- Statt ProjectManager jetzt MainWindow()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())

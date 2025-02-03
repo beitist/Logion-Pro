@@ -26,12 +26,20 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.translation_view, "🌍 Übersetzung")
     
     def open_project_details(self, project_id):
-        """Öffnet die Projektdetailansicht für das gewählte Projekt."""
-        self.project_detail = ProjectDetailView(project_id)
-        self.tabs.removeTab(1)  # Entfernt alten Detail-Tab
-        self.tabs.insertTab(1, self.project_detail, "📜 Projekt-Details")  # Fügt neuen ein
-        self.tabs.setCurrentIndex(1)  # Springt zum Tab
+        """Öffnet die Projektdetailansicht für das gewählte Projekt und ersetzt den vorhandenen Tab."""
+        
+        # Falls der Tab noch nicht existiert, erstelle ihn
+        if not hasattr(self, "project_detail_index"):
+            self.project_detail = ProjectDetailView(project_id)
+            self.project_detail_index = self.tabs.addTab(self.project_detail, "📜 Projekt-Details")
+        else:
+            # Falls der Tab existiert, ersetze ihn mit einer neuen Instanz
+            self.tabs.removeTab(self.project_detail_index)
+            self.project_detail = ProjectDetailView(project_id)
+            self.project_detail_index = self.tabs.insertTab(1, self.project_detail, "📜 Projekt-Details")
 
+        self.tabs.setCurrentIndex(self.project_detail_index)  # Wechsle direkt zum Tab
+        
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
