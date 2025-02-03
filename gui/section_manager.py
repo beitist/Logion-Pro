@@ -1,5 +1,7 @@
 import sqlite3
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QMessageBox
+import sys
+sys.path.append("gui")
 from segment_view import SegmentView
 
 class SectionManager(QWidget):

@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from PyQt6.QtWidgets import QWidget, QProgressBar, QVBoxLayout, QPushButton, QFileDialog, QListWidget, QMessageBox, QLabel
+from PyQt6.QtWidgets import QListWidgetItem, QWidget, QProgressBar, QVBoxLayout, QPushButton, QFileDialog, QListWidget, QMessageBox, QLabel
 from utils.docx_parser import DocxParser
 
 class ProjectDetailView(QWidget):
@@ -62,16 +62,22 @@ class ProjectDetailView(QWidget):
         return project_name[0] if project_name else "Unbekanntes Projekt"
     
     def load_files(self):
-        """Lädt die vorhandenen Dateien für das Projekt."""
-        self.file_list.clear()
+        """Lädt die Dateien des Projekts und macht sie anklickbar."""
         conn = sqlite3.connect("logion.db")
         cursor = conn.cursor()
-        cursor.execute("SELECT filename FROM project_files WHERE project_id = ?", (self.project_id,))
-        files = cursor.fetchall()
+        cursor.execute("SELECT id, filename FROM project_files WHERE project_id = ?", (self.project_id,))
+        rows = cursor.fetchall()
         conn.close()
-        for file in files:
-            self.file_list.addItem(file[0])
-    
+
+        self.file_list.clear()
+        for row in rows:
+            item = QListWidgetItem(row[1])
+            item.setData(256, row[0])  # Speichert project_file_id im Item
+            self.file_list.addItem(item)
+
+        # Event für Klick auf eine Datei
+        self.file_list.itemClicked.connect(lambda item: self.file_selected(item.data(256)))
+        
     def add_file(self):
         """Öffnet einen Dialog zum Hinzufügen einer Datei."""
         file_path, _ = QFileDialog.getOpenFileName(self, "Datei auswählen", "", "Word-Dateien (*.docx)")
@@ -150,3 +156,6 @@ class ProjectDetailView(QWidget):
         """Platzhalter für die Funktion zur Generierung der übersetzten Datei."""
         QMessageBox.information(self, "Übersetzung", "Die übersetzte Datei wird generiert...")
 
+    def file_selected(self, project_file_id):
+        """Aktiviert den Section-Tab, wenn eine Datei ausgewählt wurde."""
+        self.parent().open_section_manager(project_file_id)
