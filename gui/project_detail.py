@@ -7,43 +7,43 @@ class ProjectDetailView(QWidget):
     def __init__(self, project_id):
         super().__init__()
         self.project_id = project_id
-        self.init_ui()
-    
-def init_ui(self):
-    self.setWindowTitle("Projekt-Details")
-    self.layout = QVBoxLayout()
-    
-    self.project_label = QLabel("Projekt: Unbekannt")
-    self.layout.addWidget(self.project_label)
-    
-    self.file_list = QListWidget()
-    self.layout.addWidget(self.file_list)
-    
-    # Fortschrittsbalken für Übersetzung
-    self.progress_bar = QProgressBar()
-    self.progress_bar.setMinimum(0)
-    self.progress_bar.setMaximum(100)
-    self.progress_bar.setValue(0)  # Startwert
-    self.progress_label = QLabel("0/0 Segmente übersetzt")
-    
-    self.layout.addWidget(self.progress_label)
-    self.layout.addWidget(self.progress_bar)
-    
-    # Buttons für Datei-Handling
-    self.add_file_btn = QPushButton("📂 Datei hinzufügen")
-    self.add_file_btn.clicked.connect(self.add_file)
-    self.layout.addWidget(self.add_file_btn)
+        self.init_ui()  # Stellt sicher, dass die UI geladen wird
 
-    self.remove_file_btn = QPushButton("🗑️ Datei entfernen")
-    self.remove_file_btn.clicked.connect(self.remove_file)
-    self.layout.addWidget(self.remove_file_btn)
-    
-    # Button zur Generierung der übersetzten Datei
-    self.generate_translation_btn = QPushButton("📄 Übersetzte Datei generieren")
-    self.generate_translation_btn.clicked.connect(self.generate_translated_file)
-    self.layout.addWidget(self.generate_translation_btn)
-    
-    self.setLayout(self.layout)
+    def init_ui(self):
+        self.setWindowTitle("Projekt-Details")
+        self.layout = QVBoxLayout()
+        
+        self.project_label = QLabel("Projekt: Unbekannt")
+        self.layout.addWidget(self.project_label)
+        
+        self.file_list = QListWidget()
+        self.layout.addWidget(self.file_list)
+
+        # Fortschrittsbalken für Übersetzung
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMinimum(0)
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setValue(0)  # Startwert
+        self.progress_label = QLabel("0/0 Segmente übersetzt")
+        
+        self.layout.addWidget(self.progress_label)
+        self.layout.addWidget(self.progress_bar)
+        
+        # Buttons für Datei-Handling
+        self.add_file_btn = QPushButton("📂 Datei hinzufügen")
+        self.add_file_btn.clicked.connect(self.add_file)
+        self.layout.addWidget(self.add_file_btn)
+
+        self.remove_file_btn = QPushButton("🗑️ Datei entfernen")
+        self.remove_file_btn.clicked.connect(self.remove_file)
+        self.layout.addWidget(self.remove_file_btn)
+        
+        # Button zur Generierung der übersetzten Datei
+        self.generate_translation_btn = QPushButton("📄 Übersetzte Datei generieren")
+        self.generate_translation_btn.clicked.connect(self.generate_translated_file)
+        self.layout.addWidget(self.generate_translation_btn)
+
+        self.setLayout(self.layout)
     
     def update_project(self, project_id):
         """Aktualisiert die Ansicht mit dem neuen Projekt."""
